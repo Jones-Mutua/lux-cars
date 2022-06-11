@@ -1,16 +1,18 @@
 import { faEllipsisH, faFillDrip, faTachometerAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, {useState,useEffect} from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 import {ICar} from "../../../typings/car";
-import { Button } from "../Buttons";
+import { Button } from "../../components/Buttons/index";
 import {Link}  from 'react-router-dom';
 import axios from "axios";
+import { useParams } from 'react-router';
 
-interface ICarProps extends ICar {
 
-}
+// interface ICarProps extends ICar {
+
+// }
 
 
 const CarContainer = styled.div`
@@ -87,33 +89,47 @@ const RentButton = styled(Button)``
 // const {name, thumbnailSrc, dailyPrice, monthlyPrice, mileage, gearType,gas }= props;
 
 
-export function Car(props: ICarProps){
+export function RentalsPage(){
 
-    const {name, thumbnailSrc, dailyPrice, monthlyPrice, mileage, gearType,gas }= props;
+  const [cars, setCars] = useState([]);
+  const {_id} = useParams();
 
 
-    axios
-    .post('http://localhost:2500/api/car/cars', {
-        name, 
-        thumbnailSrc,
-         dailyPrice, 
-         monthlyPrice,
-          mileage,
-           gearType,
-           gas,
-    })
- 
-// const location = useLocation();
-// console.log(location)
+  useEffect(() =>  {
 
- return  <CarContainer>
+  const getCars = async () => {
+    try {
+      const res = await axios.get("http://localhost:2500/api/car/");
+      //  res.status(200).send('Data Successfully obtained');
+      console.log("Data Successfully obtained");
+
+const myCar = res.data;
+setCars(myCar)
+    } catch (error) {
+      console.log(error)
+
+    }
+  };
+  getCars();
+
+}, [cars]);
+
+ return (
+
+
+
+<>
+  {cars.map((cars, key) => (
+
+ <CarContainer key={key}>
+
      <CarThumbnail>
-         <img src={thumbnailSrc} alt=""/>
+         <img src={cars.thumbnailSrc} alt=""/>
      </CarThumbnail>
-     <CarName>{name}</CarName>
+     <CarName>{cars.name}</CarName>
      <PriceContainer>
-         <DailyPrice>${dailyPrice}<SmallText>/day</SmallText></DailyPrice>
-         <MonthlyPrice>${monthlyPrice}<SmallText>/month</SmallText></MonthlyPrice>
+         <DailyPrice>${cars.dailyPrice}<SmallText>/day</SmallText></DailyPrice>
+         <MonthlyPrice>${cars.monthlyPrice}<SmallText>/month</SmallText></MonthlyPrice>
      </PriceContainer>
      <Separator  />
      <CarDetailsContainer>
@@ -121,19 +137,19 @@ export function Car(props: ICarProps){
              <SmallIcon>
                  <FontAwesomeIcon icon={faTachometerAlt}/>
              </SmallIcon>
-             <CarInfor>{mileage}</CarInfor>
+             <CarInfor>{cars.mileage}</CarInfor>
          </CarDetail>
          <CarDetail>
              <SmallIcon>
                  <FontAwesomeIcon icon={faEllipsisH}/>
              </SmallIcon>
-             <CarInfor>{gearType}</CarInfor>
+             <CarInfor>{cars.gearType}</CarInfor>
          </CarDetail>
          <CarDetail>
              <SmallIcon>
                  <FontAwesomeIcon icon={faFillDrip}/>
              </SmallIcon>
-             <CarInfor>{gas}</CarInfor>
+             <CarInfor>{cars.gas}</CarInfor>
          </CarDetail>
          
      </CarDetailsContainer>
@@ -141,5 +157,9 @@ export function Car(props: ICarProps){
      <RentButton  text="Rent Now" />
      </Link>
  </CarContainer>
+ ))}
  
-}
+ 
+</>
+
+)}
